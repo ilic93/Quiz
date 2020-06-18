@@ -1,17 +1,25 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header />
+    <b-container class="bv-example-row">
+      <b-row>
+        <b-col sm="6" offset="3">
+          <Questions />
+        </b-col>
+      </b-row>
+    </b-container>    
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/Header'
+import Questions from './components/Questions'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Header,
+    Questions
   }
 }
 </script>
@@ -24,5 +32,6 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  background: linear-gradient(to right, blue, red);
 }
 </style>
