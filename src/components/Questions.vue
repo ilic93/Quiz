@@ -2,20 +2,19 @@
   <div>
     <b-jumbotron>
       <template v-slot:lead>
-        {{ currentQuestion.question }}
+        {{ question }}
       </template>
   
       <hr class="my-4">
 
       <b-list-group>
-        <b-list-group-item v-for="(answer, index) in answers" :key="index" @click="selectAnswer(index)" 
-        :class="answerClass(index)" >
+        <b-list-group-item v-for="(answer, index) in answers" :key="index" @click="selectAnswer(index)" :class="answerClass(index)">
           {{ answer }}
           </b-list-group-item>
       </b-list-group>
     
       <b-button variant="primary" @click="submitAnswer" :disabled="selectedAnswer == null || answered">Submit</b-button>
-      <b-button variant="success" @click="nextQuestion">Next</b-button>
+      <b-button variant="success" @click="nextQuestion" :disabled="index == questions.length-1 || answered == false">Next</b-button>
     </b-jumbotron>
   </div>
 </template>
@@ -24,7 +23,10 @@
 export default {
   props: {
     currentQuestion: Object,
-    nextQuestion: Function
+    nextQuestion: Function,
+    increment: Function,
+    index: Number,
+    questions: Array
   },
   data() {
     return {
@@ -38,7 +40,11 @@ export default {
       let answers = [...this.currentQuestion.incorrect_answers, this.currentQuestion.correct_answer]
       answers = this.shuffle(answers)
       this.getCorrectIndex(answers, this.currentQuestion.correct_answer)
-      return answers
+      return answers.map(x => this.fixWord(x))
+    },
+    question() {
+      let question = this.fixWord(this.currentQuestion.question)
+      return question
     }
   },
   methods: {
@@ -67,6 +73,13 @@ export default {
       this.correctAnswer = array.indexOf(x)
     },
     submitAnswer() {
+      let isCorrect = false
+      if(this.selectedAnswer == this.correctAnswer) {
+        isCorrect = true
+      }
+
+      this.increment(isCorrect)
+
       this.answered = true
     },
     answerClass(index) {
@@ -74,6 +87,13 @@ export default {
         (this.answered && index == this.correctAnswer) ? 'correct' : 
         (this.answered && this.selectedAnswer != this.correctAnswer && index == this.selectedAnswer) ? 'incorrect' : ''
       return answerClass
+    },
+    fixWord(x) {
+      return x.replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, "&")
+        .replace(/&ndash;/g, "-")
+        .replace(/&Uuml;/g,'Ü')
     }
   },
   watch: {
@@ -103,7 +123,9 @@ export default {
     background-color:chartreuse;
   }
 
-  .correct { background-color: lightgreen ;}
+  .correct { 
+    background-color: lightgreen;
+  }
 
   .incorrect{ 
     background-color: red;
